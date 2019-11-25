@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.business.modules.user.mapper.StoreUserMapper" >
+  <resultMap id="BaseResultMap" type="com.glsx.vasp.business.modules.user.entity.StoreUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="wx_openid" property="wxOpenId" jdbcType="VARCHAR" />
+    <result column="store_id" property="storeId" jdbcType="INTEGER" />
+    <result column="mini_openid" property="miniOpenId" jdbcType="VARCHAR" />
+    <result property="enableStatus" column="enable_status"/>
+    <result property="delFlag" column="del_flag"/>
+    <result property="createUser" column="create_user"/>
+    <result property="updateUser" column="update_user"/>
+    <result property="createTime" column="create_time"/>
+    <result property="updateTime" column="update_time"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,  phone, wx_openid, store_id,mini_openid, del_flag,  create_time, update_time,enable_status,create_user,update_user
+  </sql>
+  <select id="selectUserByPhone" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from d_store_user
+    where phone = #{phone,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectUserByMiniOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from d_store_user
+    where mini_openid = #{miniOpenId,jdbcType=VARCHAR}
+  </select>
+
+  <update id="updateMiniOpenIdByPrimaryKey" parameterType="com.glsx.vasp.business.modules.user.entity.StoreUser" >
+    update d_store_user set mini_openid = #{miniOpenId,jdbcType=VARCHAR},update_time = sysdate() where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

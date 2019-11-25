@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.glsx.vasp.admin.modules.sys.mapper.SysUserMapper">
+
+  <resultMap type="com.glsx.vasp.admin.modules.sys.entity.SysUser" id="BaseResultMap">
+    <result property="id" column="id"/>
+    <result property="account" column="account"/>
+    <result property="password" column="password"/>
+    <result property="username" column="username"/>
+    <result property="realname" column="realname"/>
+    <result property="phone" column="phone"/>
+    <result property="avatar" column="avatar"/>
+    <result property="delStatus" column="del_status"/>
+    <result property="enableStatus" column="enable_status"/>
+    <result property="accountId" column="account_id"/>
+    <result property="orgId" column="org_id"/>
+    <result property="remark" column="remark"/>
+    <result property="createUser" column="create_user"/>
+    <result property="updateUser" column="update_user"/>
+    <result property="createTime" column="create_time"/>
+    <result property="updateTime" column="update_time"/>
+  </resultMap>
+
+
+  <select id="search" resultMap="BaseResultMap">
+    select u.* from sys_user u
+    inner join sys_organization o on o.orgNo = u.orgNo
+    where 1=1
+    <if test="loginName != null and loginName !=''">
+      and u.account LIKE CONCAT('%',#{account},'%')
+    </if>
+    <if test="realName != null and realName !=''">
+      and u.realname LIKE CONCAT('%',#{realname},'%')
+    </if>
+    <if test="phone != null and phone !=''">
+      and u.phone LIKE CONCAT('%',#{phone},'%')
+    </if>
+    <if test="orgName != null and orgName != ''">
+      and o.name like '%${orgName}%'
+    </if>
+    order by u.create_time desc
+  </select>
+
+  <select id="selectByAccount" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select * from sys_user where account=#{account}
+  </select>
+
+</mapper>

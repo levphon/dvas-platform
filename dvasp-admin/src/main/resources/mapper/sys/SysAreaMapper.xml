@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.sys.mapper.SysAreaMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.entity.SysArea">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="city_code" property="cityCode" jdbcType="VARCHAR"/>
+        <result column="province_code" property="provinceCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, code, name, city_code, province_code
+  </sql>
+
+    <select id="selectAllAreas" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_areas
+        order by province_code,city_code,code
+    </select>
+
+    <select id="selectAreasByCityCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_areas
+        where city_code = #{cityCode}
+        order by province_code,city_code,code
+    </select>
+
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_areas
+        where code = #{code}
+        order by province_code,city_code,code
+    </select>
+</mapper>

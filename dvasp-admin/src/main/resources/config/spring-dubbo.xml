@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+
+    <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样hhx_gps_consumer  -->
+    <dubbo:application name="dvasp-admin-consumer"/>
+
+    <!--使用zookeeper注册中心暴露服务地址
+    <dubbo:registry address="multicast://224.5.6.7:1234" />-->
+    <!-- dubbo接口去除注册中心，采用直连的方式  -->
+<!--    <dubbo:registry address="zookeeper://${spring.dubbo.registry.address}:${spring.dubbo.registry.port}"/>-->
+    <dubbo:registry address="zookeeper://192.168.3.206:2181"/>
+<!--    <dubbo:registry address="zookeeper://192.168.1.36:2181"/>-->
+    <dubbo:consumer timeout="20000"/>
+
+    <!-- 生成远程服务代理，可以和本地bean一样使用  dev-->
+<!--    <dubbo:reference id="provinceService" interface="com.glsx.biz.common.base.service.ProvinceService" version="1.0.0" timeout="100000" retries="0"/>-->
+<!--    <dubbo:reference id="cityService" interface="com.glsx.biz.common.base.service.CityService" version="1.0.0" timeout="100000" retries="0"/>-->
+<!--    <dubbo:reference id="areaService" interface="com.glsx.biz.common.base.service.AreaService" version="1.0.0" timeout="100000" retries="0"/>-->
+
+<!--    <dubbo:reference id="merchantService" interface="com.glsx.biz.merchant.service.MerchantService" version="1.0.0" timeout="100000" retries="0"/>-->
+<!--    <dubbo:reference id="merchantBrandService" interface="com.glsx.biz.merchant.service.MerchantBrandService" version="1.0.0" timeout="100000" retries="0"/>-->
+    <dubbo:reference id="merchantStaffService" interface="com.glsx.biz.merchant.service.MerchantStaffService" version="1.0.0" timeout="100000" retries="0"/>
+
+    <dubbo:reference id="carbrandService" interface="com.glsx.biz.common.base.service.CarbrandService" version="2.2.0" timeout="100000" retries="0"/>
+    <dubbo:reference id="carseriesService" interface="com.glsx.biz.common.base.service.CarseriesService" version="2.2.0" timeout="100000" retries="0"/>
+    <dubbo:reference id="cartypeService" interface="com.glsx.biz.common.base.service.CartypeService" version="2.2.0" timeout="100000" retries="0"/>
+</beans>

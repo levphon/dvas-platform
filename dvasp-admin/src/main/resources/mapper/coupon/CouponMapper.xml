@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.coupon.mapper.CouponMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.coupon.entity.Coupon">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="used" property="used" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="with_special" property="withSpecial" jdbcType="INTEGER"/>
+        <result column="with_sn" property="withSn" jdbcType="VARCHAR"/>
+        <result column="with_amount" property="withAmount" jdbcType="BIGINT"/>
+        <result column="cost_amount" property="costAmount" jdbcType="DECIMAL"/>
+        <result column="used_amount" property="usedAmount" jdbcType="BIGINT"/>
+        <result column="quota" property="quota" jdbcType="INTEGER"/>
+        <result column="total_quota" property="totalQuota" jdbcType="INTEGER"/>
+        <result column="take_count" property="takeCount" jdbcType="INTEGER"/>
+        <result column="used_count" property="usedCount" jdbcType="INTEGER"/>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="valid_type" property="validType" jdbcType="INTEGER"/>
+        <result column="valid_start_time" property="validStartTime" jdbcType="TIMESTAMP"/>
+        <result column="valid_end_time" property="validEndTime" jdbcType="TIMESTAMP"/>
+        <result column="valid_days" property="validDays" jdbcType="INTEGER"/>
+        <result column="used_quantity" property="usedQuantity" jdbcType="INTEGER"/>
+        <result column="used_threshold" property="usedThreshold" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="org_id" property="orgId" jdbcType="INTEGER"/>
+        <result column="enable_status" property="enableStatus" jdbcType="TINYINT"/>
+        <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
+        <result column="create_user" property="createUser" jdbcType="BIGINT"/>
+        <result column="update_user" property="updateUser" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, title, icon, used, type, with_special, with_sn, with_amount, used_amount, cost_amount,
+    quota, total_quota, take_count, used_count, start_time, end_time, valid_type, valid_start_time,
+    valid_end_time, valid_days, used_quantity, used_threshold, remark, org_id,
+    enable_status, del_flag, create_user, update_user, create_time, update_time
+    </sql>
+
+    <select id="selectListByGoodsId" resultType="com.glsx.vasp.admin.modules.coupon.model.CouponGoodsVO">
+        select dc.id couponId,dc.title couponTitle,dc.icon, dc.cost_amount couponCostAmount, dc.used_amount
+        couponUsedAmount,dc.quota couponQuota, dc.used_threshold usedThreshold, dg.id goodsId,dg.name goodsName,
+        dg.cost_price goodsCostPrice, dg.shop_price goodsShopPrice
+        from d_coupon dc
+        left join d_goods dg on dc.with_sn = dg.id
+        where 1=1
+        <if test="goodsId != null and goodsId !=''">
+            and dc.with_sn = #{goodsId}
+        </if>
+        <if test="title != null and title !=''">
+            and dc.title LIKE CONCAT('%',#{title},'%')
+        </if>
+        and dc.del_flag = 0
+        order by dc.create_time desc
+    </select>
+
+    <select id="search" resultType="com.glsx.vasp.admin.modules.coupon.model.CouponStoreVO">
+        select dscc.id scId,ds.id storeId,ds.name storeName,dc.title couponTitle,dg.name goodsName,
+        (case when dsgc.shop_price is not null then dsgc.shop_price else dg.shop_price end)
+        -(dc.used_amount*dc.used_quantity)+(dc.cost_amount*dc.used_quantity)-dg.cost_price profit,
+        dc.used_quantity usedQuantity,
+        dc.used_threshold usedThreshold
+        from d_store_coupon_config dscc
+        left join d_coupon dc on dscc.coupon_id = dc.id
+        left join d_store ds on dscc.store_id = ds.id
+        left join d_goods dg on dc.with_sn = dg.id and dg.org_id = ds.org_id
+        left join d_store_goods_config dsgc on dsgc.store_id = dscc.store_id and dsgc.goods_id = dg.id
+        where dscc.del_flag = 0 and ds.del_flag = 0 and dc.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        group by ds.id
+        order by ds.create_time,dc.create_time
+    </select>
+
+    <select id="searchCount" resultType="java.lang.Long">
+        select count(*) from (
+        select ds.org_id, count(*)
+        from d_store_coupon_config dscc
+        left join d_coupon dc on dscc.coupon_id = dc.id
+        left join d_store ds on dscc.store_id = ds.id
+        left join d_goods dg on dc.with_sn = dg.id and dg.org_id = ds.org_id
+        left join d_store_goods_config dsgc on dsgc.store_id = dscc.store_id and dsgc.goods_id = dg.id
+        where dscc.del_flag = 0 and ds.del_flag = 0 and dc.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        group by dscc.store_id) cnt_table
+    </select>
+
+    <select id="export" resultType="com.glsx.vasp.admin.modules.coupon.model.CouponExportModel">
+        select ds.name storeName,dc.title couponTitle,dg.name goodsName,
+        dc.used_quantity usedQuantity,
+        (case when dsgc.shop_price is not null then dsgc.shop_price else dg.shop_price end)
+        -(dc.used_amount*dc.used_quantity)+(dc.cost_amount*dc.used_quantity)-dg.cost_price profit,
+        case when dc.used_threshold = 2 then '需做金融' else '无使用门槛' end usedThreshold
+        from d_store_coupon_config dscc
+        left join d_coupon dc on dscc.coupon_id = dc.id
+        left join d_store ds on dscc.store_id = ds.id
+        left join d_goods dg on dc.with_sn = dg.id and dg.org_id = ds.org_id
+        left join d_store_goods_config dsgc on dsgc.store_id = dscc.store_id and dsgc.goods_id = dg.id
+        where dscc.del_flag = 0 and ds.del_flag = 0 and dc.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        order by ds.create_time,dc.create_time
+    </select>
+
+    <select id="selectByStoreId" resultType="com.glsx.vasp.admin.modules.coupon.model.CouponStoreVO">
+        select dscc.id scId,ds.id storeId,ds.name storeName,dc.title couponTitle,dg.name goodsName,
+        dc.used_quantity usedQuantity,
+        (case when dsgc.shop_price is not null then dsgc.shop_price else dg.shop_price end)
+        -(dc.used_amount*dc.used_quantity)+(dc.cost_amount*dc.used_quantity)-dg.cost_price profit,
+        dc.used_threshold usedThreshold
+        from d_store_coupon_config dscc
+        left join d_coupon dc on dscc.coupon_id = dc.id
+        left join d_store ds on dscc.store_id = ds.id
+        left join d_goods dg on dc.with_sn = dg.id and dg.org_id = ds.org_id
+        left join d_store_goods_config dsgc on dsgc.store_id = dscc.store_id and dsgc.goods_id = dg.id
+        where dscc.del_flag = 0 and ds.del_flag = 0 and dc.del_flag = 0
+        and dscc.store_id = #{storeId}
+        order by dscc.create_time desc
+    </select>
+
+    <select id="selectUnconfigedByCouponInfo" parameterType="com.glsx.vasp.admin.modules.coupon.entity.Coupon"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_coupon dc
+        where dc.with_sn = #{withSn}
+        <if test="costAmount != null and costAmount !=''">
+            and dc.cost_amount = #{costAmount}
+        </if>
+        <if test="usedAmount != null and usedAmount !=''">
+            and dc.used_amount = #{usedAmount}
+        </if>
+        and dc.used_threshold is null
+        and dc.del_flag = 0
+    </select>
+
+    <select id="selectConfigedByCouponInfo" parameterType="com.glsx.vasp.admin.modules.coupon.entity.Coupon"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_coupon dc
+        where dc.with_sn = #{withSn}
+        <if test="costAmount != null and costAmount !=''">
+            and dc.cost_amount = #{costAmount}
+        </if>
+        <if test="usedAmount != null and usedAmount !=''">
+            and dc.used_amount = #{usedAmount}
+        </if>
+        and dc.used_threshold is not null
+        and dc.del_flag = 0
+    </select>
+
+    <select id="selectByConfigedCouponsByStoreId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select dc.* from d_coupon dc,d_store_coupon_config dscc
+        where dc.id = dscc.coupon_id
+        and dscc.store_id = #{storeId}
+        and dc.del_flag = 0
+        and dscc.del_flag = 0
+    </select>
+
+    <select id="selectCouponByStoreIdAndGoods" resultMap="BaseResultMap">
+        select dc.* from d_coupon dc,d_store_coupon_config dscc
+        where dc.id = dscc.coupon_id
+        and dscc.store_id = #{storeId}
+        and dc.with_sn = #{goodsId}
+        and dc.used_threshold = #{threshold}
+        and dc.del_flag = 0
+        and dscc.del_flag = 0
+    </select>
+
+    <update id="logicDelete" parameterType="java.lang.Integer">
+        update d_coupon set del_flag = -1 where id = #{couponId}
+    </update>
+</mapper>

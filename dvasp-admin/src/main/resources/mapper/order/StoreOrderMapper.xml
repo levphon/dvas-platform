@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.order.mapper.StoreOrderMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.order.entity.StoreOrder">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="store_user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="order_no" property="orderNo" jdbcType="VARCHAR"/>
+        <result column="pay_amount" property="payAmount" jdbcType="DECIMAL"/>
+        <result column="discount_amount" property="discountAmount" jdbcType="DECIMAL"/>
+        <result column="profit" property="profit" jdbcType="DECIMAL"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="enable_status" property="enableStatus" jdbcType="TINYINT"/>
+        <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="update_user" property="updateUser" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, store_user_id, order_no, pay_amount, discount_amount, profit, status,
+    enable_status, del_flag, create_user, update_user, create_time, update_time
+  </sql>
+
+    <select id="search" resultMap="BaseResultMap">
+        select dso.id,dso.order_no,ds.name storeName,dso.pay_amount,dso.discount_amount,
+        dso.profit,dso.status,dso.create_time
+        from d_store_order dso
+        left join d_store_user dsu on dso.store_user_id = dsu.id
+        left join d_store ds on dsu.store_id = ds.id
+        where dso.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        <if test="status != null and status !=''">
+            and dso.status = #{status}
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(dso.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="orderNo != null and orderNo !=''">
+            and dso.order_no LIKE CONCAT('%',#{orderNo},'%')
+        </if>
+        order by dso.id desc
+    </select>
+
+    <select id="search_COUNT" resultType="java.lang.Long">
+        select count(*)
+        from d_store_order dso
+        left join d_store_user dsu on dso.store_user_id = dsu.id
+        left join d_store ds on dsu.store_id = ds.id
+        where dso.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        <if test="status != null and status !=''">
+            and dso.status = #{status}
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(dso.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="orderNo != null and orderNo !=''">
+            and dso.order_no LIKE CONCAT('%',#{orderNo},'%')
+        </if>
+    </select>
+
+    <select id="export" resultType="com.glsx.vasp.admin.modules.order.model.StoreOrderExportModel">
+        select dsog.order_no orderNo,ds.name storeName,dsog.goods_name goodsName,dsog.goods_price goodsShopPrice,dsog.goods_num goodsNum,
+        dsoccr.coupon_title couponTitle,dsog.goods_num*ifnull(dsoccr.used_quantity,0) couponUsedQuantity,
+        dsog.goods_num*(dsog.goods_price-ifnull(dsoccr.used_amount*dsoccr.used_quantity,0)) goodsPayAmount,
+        dsog.goods_num*ifnull(dsoccr.cost_amount*dsoccr.used_quantity,0) couponPayAmount,
+        dsog.goods_num*(dsog.goods_price-dsog.cost_price-ifnull(dsoccr.used_amount*dsoccr.used_quantity,0)+ifnull(dsoccr.cost_amount*dsoccr.used_quantity,0)) delicateProfit,
+        case when dso.status = 1 then '已下单' else '已安装' end orderStatus,
+        DATE_FORMAT(dso.create_time,'%Y-%m-%d %T') createTime
+        from d_store_order_goods dsog
+        left join (select dcr.coupon_title,dsoc.order_no,dcr.goods_id,dcr.cost_amount,dcr.used_amount,dcr.used_quantity
+        from d_store_order_coupons dsoc,d_coupon_recipients dcr
+        where dsoc.coupon_recipients_id = dcr.id) dsoccr on dsoccr.order_no = dsog.order_no and dsoccr.goods_id = dsog.goods_id
+        left join d_store_order dso on dso.order_no = dsog.order_no
+        left join d_store_user dsu on dso.store_user_id = dsu.id
+        left join d_store ds on dsu.store_id = ds.id
+        where dso.del_flag = 0
+        <if test="storeName != null and storeName !=''">
+            and ds.name LIKE CONCAT('%',#{storeName},'%')
+        </if>
+        <if test="status != null and status !=''">
+            and dso.status = #{status}
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(dso.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="orderNo != null and orderNo !=''">
+            and dso.order_no LIKE CONCAT('%',#{orderNo},'%')
+        </if>
+        order by dsog.id desc,dsog.goods_id
+    </select>
+</mapper>

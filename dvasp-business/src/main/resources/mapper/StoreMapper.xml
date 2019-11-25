@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.business.modules.store.mapper.StoreMapper" >
+  <resultMap id="BaseResultMap" type="com.glsx.vasp.business.modules.store.entity.Store" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="org_id" property="orgId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="contactor" property="contactor" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+<!--    <result column="phone1" property="phone1" jdbcType="VARCHAR" />
+    <result column="phone2" property="phone2" jdbcType="VARCHAR" />-->
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="district" property="district" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="enable_status" property="enableStatus" jdbcType="TINYINT" />
+    <result column="del_flag" property="delFlag" jdbcType="TINYINT" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="update_user" property="updateUser" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, org_id, name, contactor, phone, province, city, district,
+    address, remark, enable_status, del_flag, create_user, update_user, create_time, 
+    update_time
+  </sql>
+
+  <select id="search" resultMap="BaseResultMap">
+    select ds.* from d_store ds
+    where 1=1
+    <if test="id != null ">
+      and ds.id = #{id}
+    </if>
+    <if test="orgId != null ">
+      and ds.org_id = #{orgId}
+    </if>
+    <if test="enableStatus != null ">
+      and ds.enable_status = #{enableStatus}
+    </if>
+    and del_flag = 0
+    <if test="name != null and name !=''">
+      and ds.name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="phone != null and phone !=''">
+      and ds.phone LIKE CONCAT('%',#{phone},'%')
+    </if>
+    <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+      and ds.create_time between
+    </if>
+    order by ds.create_time desc
+  </select>
+</mapper>

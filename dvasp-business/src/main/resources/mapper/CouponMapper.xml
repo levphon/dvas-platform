@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.glsx.vasp.business.modules.coupon.mapper.CouponMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.glsx.vasp.business.modules.coupon.entity.Coupon" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="icon" column="icon"/>
+        <result property="used" column="used"/>
+        <result property="type" column="type"/>
+        <result property="withSpecial" column="with_special"/>
+        <result property="withSn" column="with_sn"/>
+        <result property="withAmount" column="with_amount"/>
+        <result property="costAmount" column="cost_amount"/>
+        <result property="usedAmount" column="used_amount"/>
+        <result property="quota" column="quota"/>
+        <result property="totalQuota" column="total_quota"/>
+        <result property="takeCount" column="take_count"/>
+        <result property="usedCount" column="used_count"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="validType" column="valid_type"/>
+        <result property="validStartTime" column="valid_start_time"/>
+        <result property="validEndTime" column="valid_end_time"/>
+        <result property="validDays" column="valid_days"/>
+        <result property="usedQuantity" column="used_quantity"/>
+        <result property="usedThreshold" column="used_threshold"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectCouponByStoreId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select dc.* from d_store_coupon_config dcd,d_coupon dc where dcd.coupon_id=dc.id
+        <if test="storeId != null ">
+        and dcd.store_id = #{storeId,jdbcType=INTEGER}
+        </if>
+        and dcd.del_flag=0
+    </select>
+
+</mapper>

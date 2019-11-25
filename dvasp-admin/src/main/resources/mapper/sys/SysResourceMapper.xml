@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.glsx.vasp.admin.modules.sys.mapper.SysMenuMapper">
+  <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.sys.entity.SysResource">
+    <id column="id" property="Id" jdbcType="INTEGER" />
+    <id column="menu_id" property="menuId" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="component" property="component" jdbcType="VARCHAR" />
+    <result column="perms" property="perms" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="order_num" property="orderNum" jdbcType="INTEGER" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, menu_id, parent_id, name, url, component, perms, type, icon, order_num
+  </sql>
+
+  <select id="selectResourcesByRoleId" resultMap="BaseResultMap">
+    select r.* from sys_role_menu t
+    inner join sys_menu r on r.resourceId=t.resourceId
+    where roleId = #{roleId};
+  </select>
+</mapper>

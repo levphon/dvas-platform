@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.report.mapper.ReportMapper">
+
+    <select id="selectStoreOrderTotalCnt" resultType="java.lang.Integer">
+        select count(*) cnt from d_store_order dso
+        left join d_store_user dsu on dso.store_user_id = dsu.id
+        left join d_store ds on dsu.store_id = ds.id
+        where dso.del_flag = 0
+  </select>
+
+    <select id="selectGroupByGoods" resultType="com.glsx.vasp.admin.modules.report.model.BaseReportModel">
+        select dsog.goods_name name,sum(dsog.goods_num) value from d_store_order_goods dsog
+        left join d_goods dg on dg.id = dsog.goods_id
+        left join d_store_order dso on dso.order_no = dsog.order_no
+        where dso.del_flag = 0
+        group by dsog.goods_id
+        order by dsog.goods_id
+    </select>
+
+    <select id="selectGroupByStore" resultType="com.glsx.vasp.admin.modules.report.model.BaseReportModel">
+        select ds.name name,count(dso.id) value from d_store_order dso
+        left join d_store_user dsu on dso.store_user_id = dsu.id
+        left join d_store ds on dsu.store_id = ds.id
+        where dso.del_flag = 0 and ds.del_flag = 0
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(dso.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        group by ds.name
+        order by count(dso.id) desc
+        limit 5
+    </select>
+</mapper>

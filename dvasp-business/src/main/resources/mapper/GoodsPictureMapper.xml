@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.glsx.vasp.business.modules.goodsPicture.mapper.GoodsPictureMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.glsx.vasp.business.modules.goodsPicture.entity.GoodsPicture" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="picUrl" column="pic_url"/>
+        <result property="picSeq" column="pic_seq"/>
+        <result property="isMain" column="is_main"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+
+    <select id="search" resultMap="BaseResultMap">
+        select dgp.* from d_goods_picture dgp
+        where 1=1
+        <if test="goodsId != null">
+            and dgp.goods_id = #{goodsId}
+        </if>
+        <if test="picUrl != null and picUrl !=''">
+            and dgp.pic_url LIKE CONCAT('%',#{picUrl},'%')
+        </if>
+        <if test="picSeq != null ">
+            and dgp.pic_seq = #{picSeq})
+        </if>
+        <if test="isMain != null ">
+            and dgp.is_main = #{isMain})
+        </if>
+        <if test="enableStatus != null">
+            and dgp.enable_status = #{enableStatus}
+        </if>
+            and dgp.del_flag = 0
+        order by dgp.create_time desc
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.store.mapper.StoreGoodsConfigMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.store.entity.StoreGoodsConfig">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="store_id" property="storeId" jdbcType="INTEGER"/>
+        <result column="goods_id" property="goodsId" jdbcType="INTEGER"/>
+        <result column="shop_price" property="shopPrice" jdbcType="DECIMAL"/>
+        <result column="enable_status" property="enableStatus" jdbcType="TINYINT"/>
+        <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="update_user" property="updateUser" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, store_id, goods_id, shop_price, enable_status, del_flag, create_user, update_user, 
+    create_time, update_time
+  </sql>
+
+    <select id="selectByStoreIdAndGoodsId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_store_goods_config dsgc
+        where dsgc.store_id = #{storeId}
+        and dsgc.goods_id = #{goodsId}
+        and dsgc.del_flag = 0
+    </select>
+</mapper>

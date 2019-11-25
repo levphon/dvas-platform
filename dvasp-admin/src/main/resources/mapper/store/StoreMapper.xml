@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.store.mapper.StoreMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.store.entity.Store">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="org_id" property="orgId" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="contactor" property="contactor" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="district" property="district" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="enable_status" property="enableStatus" jdbcType="TINYINT"/>
+        <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="update_user" property="updateUser" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, org_id, name, contactor, phone, province, city, district, address,
+    remark, enable_status, del_flag, create_user, update_user, create_time, update_time
+  </sql>
+
+    <select id="search" resultMap="BaseResultMap">
+        select ds.id,ds.name,ds.contactor,odsu.phone,concat(bp.name,bc.name,ifnull(ba.name,''),ifnull(ds.address,''))
+        fullAddress,
+        ds.create_time,ds.enable_status
+        from d_store ds
+        left join base_provinces bp on ds.province = bp.code
+        left join base_cities bc on ds.city = bc.code and bp.code = bc.province_code
+        left join base_areas ba on ds.district = ba.code and bc.code = ba.city_code
+        left join (
+        select dsu.store_id,group_concat(dsu.phone order by dsu.create_time) phone
+        from d_store_user dsu
+        where dsu.del_flag = 0
+        group by dsu.store_id
+        ) odsu on ds.id = odsu.store_id
+        where ds.del_flag = 0
+        <if test="name != null and name !=''">
+            and ds.name LIKE CONCAT('%',#{name},'%')
+        </if>
+        <if test="phone != null and phone !=''">
+            and odsu.phone LIKE CONCAT('%',#{phone},'%')
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(ds.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="enableStatus != null and enableStatus !=''">
+            and ds.enable_status = #{enableStatus}
+        </if>
+        order by ds.create_time desc
+    </select>
+
+    <select id="search_COUNT" resultType="java.lang.Long">
+        select count(*) from d_store ds
+        left join (
+        select dsu.store_id,group_concat(dsu.phone) phone
+        from d_store_user dsu
+        where dsu.del_flag = 0
+        group by dsu.store_id
+        ) odsu on ds.id = odsu.store_id
+        where ds.del_flag = 0
+        <if test="name != null and name !=''">
+            and ds.name LIKE CONCAT('%',#{name},'%')
+        </if>
+        <if test="phone != null and phone !=''">
+            and odsu.phone LIKE CONCAT('%',#{phone},'%')
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(ds.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="enableStatus != null and enableStatus !=''">
+            and ds.enable_status = #{enableStatus}
+        </if>
+    </select>
+
+    <select id="export" resultType="com.glsx.vasp.admin.modules.store.model.StoreExportModel">
+        select ds.name,ds.contactor,odsu.phone,concat(bp.name,bc.name,ifnull(ba.name,''),ifnull(ds.address,''))
+        fullAddress,
+        DATE_FORMAT(ds.create_time,'%Y-%m-%d %T') createTime,
+        case when ds.enable_status = 0 then '待审核' when ds.enable_status = 1 then '已启用' else '已停用' end enableStatus
+        from d_store ds
+        left join base_provinces bp on ds.province = bp.code
+        left join base_cities bc on ds.city = bc.code and bp.code = bc.province_code
+        left join base_areas ba on ds.district = ba.code and bc.code = ba.city_code
+        left join (
+        select dsu.store_id,group_concat(dsu.phone order by dsu.create_time) phone
+        from d_store_user dsu
+        where dsu.del_flag = 0
+        group by dsu.store_id
+        ) odsu on ds.id = odsu.store_id
+        where ds.del_flag = 0
+        <if test="name != null and name !=''">
+            and ds.name LIKE CONCAT('%',#{name},'%')
+        </if>
+        <if test="phone != null and phone !=''">
+            and odsu.phone LIKE CONCAT('%',#{phone},'%')
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+            and date_format(ds.create_time,'%Y-%m-%d') between #{beginTime} and #{endTime}
+        </if>
+        <if test="enableStatus != null and enableStatus !=''">
+            and ds.enable_status = #{enableStatus}
+        </if>
+        order by ds.create_time desc
+    </select>
+
+    <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from d_store ds where ds.name = #{storeName} and ds.del_flag = 0
+    </select>
+
+    <select id="selectListByName" resultType="com.glsx.vasp.admin.modules.store.model.StoreRegionVO">
+        select ds.id,ds.name,bp.region_code regionCode,bp.region_name regionName from d_store ds
+        left join base_provinces bp on bp.code = ds.province
+        where ds.del_flag = 0
+        <if test="name != null and name !=''">
+            and ds.name LIKE CONCAT('%',#{name},'%')
+        </if>
+        and ds.enable_status = 1
+        group by ds.province,ds.id
+        order by bp.region_code
+    </select>
+
+    <update id="changeStatusById">
+      update d_store set enable_status = #{enableStatus} where id = #{storeId}
+    </update>
+
+    <update id="logicDeleteBatch">
+        update d_store set del_flag = -1 where id in
+        <foreach collection="array" item="storeId" separator="," open="(" close=")">
+            #{storeId}
+        </foreach>
+    </update>
+</mapper>

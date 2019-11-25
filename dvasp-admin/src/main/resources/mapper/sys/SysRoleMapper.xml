@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.glsx.vasp.admin.modules.sys.mapper.SysRoleMapper">
+  <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.sys.entity.SysRole">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+  <select id="selectByName" resultMap="BaseResultMap">
+    select * from sys_role where name = #{roleName}
+  </select>
+
+  <select id="search" resultMap="BaseResultMap">
+    select * from sys_role where create_user = #{userId}
+    <if test="roleName != null and roleName != ''">
+        and name like '%${roleName}%'
+    </if>
+    <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+      and date_format(create_time,'%Y-%m-%d') between  #{beginTime} and #{endTime}
+    </if>
+    order by create_time desc
+  </select>
+
+  <select id="selectRoles" resultMap="BaseResultMap">
+    select * from sys_role where create_user = #{id} or id = #{roleId}
+  </select>
+</mapper>

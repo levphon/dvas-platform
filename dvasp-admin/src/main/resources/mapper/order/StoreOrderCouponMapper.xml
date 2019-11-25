@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.glsx.vasp.admin.modules.order.mapper.StoreOrderCouponMapper">
+    <resultMap id="BaseResultMap" type="com.glsx.vasp.admin.modules.order.entity.StoreOrderCoupon">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="order_no" property="orderNo" jdbcType="VARCHAR"/>
+        <result column="coupon_recipients_id" property="couponRecipientsId" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, order_no, coupon_recipients_id
+  </sql>
+
+    <select id="selectCouponListByOrderNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_store_order_coupons
+        where order_no = #{orderNo}
+    </select>
+
+    <select id="selectCouponRecipientsListByOrderNo" parameterType="java.lang.String"
+            resultType="com.glsx.vasp.admin.modules.coupon.model.CouponRecipientsModel">
+        select dsoc.order_no orderNo,dcr.coupon_id couponId,dcr.coupon_title couponTitle,dcr.goods_id goodsId,
+        dcr.cost_amount costAmount,dcr.used_amount usedAmount,
+        dcr.used_quantity usedQuantity,dcr.finance_order_no financeOrderNo, dcr.vin_no vinNo
+        from d_coupon_recipients dcr,d_store_order_coupons dsoc
+        where dcr.id = dsoc.coupon_recipients_id
+        and dsoc.order_no = #{orderNo}
+  </select>
+    
+</mapper>
