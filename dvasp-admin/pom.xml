@@ -14,7 +14,7 @@
     <name>dvasp-admin</name>
 
     <properties>
-        <shiro.version>1.4.0</shiro.version>
+        <shiro.version>1.9.1</shiro.version>
         <kaptcha.version>0.0.9</kaptcha.version>
         <zkclient.version>0.11</zkclient.version>
         <zookeeper.version>3.4.13</zookeeper.version>
